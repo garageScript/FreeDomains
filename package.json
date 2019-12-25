@@ -1,0 +1,20 @@
+{
+  "name": "freedomains.dev",
+  "version": "1.0.0",
+  "description": "",
+  "main": "deploy.config.js",
+  "scripts": {
+    "start:myproxy": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "myproxy@freedomains.dev:/home/myproxy/freedomains.dev"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "node-fetch": "^2.6.0"
+  }
+}
