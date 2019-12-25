@@ -1,5 +1,6 @@
 const express = require('express')
 const fs = require('fs')
+const fetch = require('node-fetch')
 const uuidv4 = require('uuid/v4')
 const app = express()
 app.use(express.static('public'))
@@ -32,6 +33,21 @@ app.get('/api/domains', (req, res) => {
     return { id, domain }
   })
   res.json(domainList)
+})
+
+app.get('/api/mappings', async (req, res) => {
+  const userId = req.headers.authorization
+  if (!userId || !(data.users || {})[userId]) {
+    return res.json([])
+  }
+
+  const mappings = await fetch('http://165.227.55.105:2229/api/mappings', {
+    headers: {
+      authorization: '6ecbeea1-6dcd-4d77-870b-fcc04b86d79a'
+    }
+  }).then(r => r.json())
+
+  res.json(mappings)
 })
 
 app.get('/api/users/:userId', (req, res) => {

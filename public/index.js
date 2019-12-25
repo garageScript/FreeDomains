@@ -1,7 +1,8 @@
-/* global fetch localStorage $ */
+/* global fetch localStorage $, confirm */
 
 const hostSelector = document.querySelector('#hostSelector')
 const dropDownDomains = document.querySelector('.dropdown-menu')
+const domainList = document.querySelector('.domainList')
 const sshKeySaveButton = document.querySelector('#saveSshKey')
 const sshKeyInput = document.querySelector('#sshKeyInput')
 
@@ -21,17 +22,148 @@ class DomainOption {
   }
 }
 
+class MappingItem {
+  constructor (data) {
+    const mappingElement = document.createElement('li')
+    let iconClass
+    let iconColor
+    // The variables below are to hide log related icons when pm2 is not
+    // being used to monitor the apps. These apps will not have status since
+    // they are not managed by pm2.
+    let settingClass
+    let logClass
+    if (data.status === 'online') {
+      iconClass = 'fa fa-circle mr-1 mt-1'
+      iconColor = 'rgba(50,255,50,0.5)'
+      logClass = 'fa fa-file-text-o ml-1 mt-1'
+      settingClass = 'ml-1 fa fa-cog'
+    } else if (data.status === 'not started') {
+      iconClass = ''
+      iconColor = 'transparent'
+    } else {
+      iconClass = 'fa fa-circle mr-1 mt-1'
+      iconColor = 'rgba(255, 50, 50, 0.5)'
+      logClass = 'fa fa-file-text-o ml-1 mt-1'
+      settingClass = 'ml-1 fa fa-cog'
+    }
+    mappingElement.classList.add(
+      'list-group-item',
+      'd-flex',
+      'align-items-center'
+    )
+    domainList.appendChild(mappingElement)
+    mappingElement.innerHTML = `
+      <div style="width: 100%">
+        <div style="display: flex">
+          <i class="${iconClass}" style="font-size: 15px; color: ${iconColor}">
+          </i>
+          <a class="font-weight-bold" href="https://${data.fullDomain}">
+            ${data.fullDomain}
+          </a>
+          <small class="form-text text-muted ml-1">
+            PORT: ${data.port}
+          </small>
+          <a
+            class="${logClass}"
+            style="font-size: 15px; color: rgba(255,50,50,0.5)"
+            href="/api/logs/err/${data.fullDomain}"
+          >
+          </a>
+          <a
+            class="${logClass}"
+            style="font-size: 15px; color: rgba(40,167,70,0.5)"
+            href="/api/logs/out/${data.fullDomain}"
+          >
+          </a>
+          <div class="dropright">
+            <a href="#" role="button" data-toggle="dropdown" class="btn-link">
+              <span class="${settingClass}" style="font-size: 15px"> </span>
+            </a>
+            <div class="dropdown-menu">
+              <button
+                type="button"
+                class="btn btn-link deleteLogButton"
+                style="color: rgba(255,50,50,1)"
+              >
+                Clear Logs
+              </button>
+            </div>
+          </div>
+        </div>
+        <small class="form-text text-muted" style="display: inline-block;">
+          ${data.gitLink}
+        </small>
+      </div>
+      <a
+        href="/api/mappings/download/?fullDomain=${data.fullDomain}"
+        target="_blank"
+        class="btn btn-sm btn-outline-success mr-3"
+      >
+        Download<i class="fa fa-download"></i>
+      </a>
+      <button
+        class="btn btn-sm btn-outline-danger mr-3 deleteButton"
+        type="button"
+      >
+        Delete
+      </button>
+    `
+
+    const delButton = mappingElement.querySelector('.deleteButton')
+    delButton.onclick = () => {
+      if (confirm('Are you sure want to delete this domain?')) {
+        fetch(`/api/mappings/${data.id}`, {
+          method: 'DELETE',
+          body: JSON.stringify({ data }),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }).then(() => {
+          window.location.reload()
+        })
+      }
+    }
+    const clearLogButton = mappingElement.querySelector('.deleteLogButton')
+    clearLogButton.onclick = () => {
+      if (
+        confirm(`Are you sure you want to clear ${data.fullDomain}'s logs?`)
+      ) {
+        fetch(`/api/logs/${data.fullDomain}`, {
+          method: 'DELETE'
+        }).then(() => {
+          window.location.reload()
+        })
+      }
+    }
+  }
+}
+
 const getDomainNames = () => {
   return fetch('/api/domains').then(r => r.json())
 }
 
-getDomainNames().then(list => {
-  list.forEach(({ domain }) => {
-    return new DomainOption(domain)
+const getMappings = () => {
+  return fetch('/api/mappings', {
+    headers: {
+      authorization: userId
+    }
+  }).then(r => r.json())
+}
+
+const startApp = () => {
+  getDomainNames().then(list => {
+    list.forEach(({ domain }) => {
+      return new DomainOption(domain)
+    })
+    selectedHost = list[0].domain
+    hostSelector.innerText = list[0].domain
   })
-  selectedHost = list[0].domain
-  hostSelector.innerText = list[0].domain
-})
+  getMappings().then(list => {
+    list.forEach((dd) => {
+      return new MappingItem(dd)
+    })
+  })
+}
 
 let userId = localStorage.getItem('freedomains')
 if (!userId) {
@@ -42,6 +174,7 @@ if (!userId) {
       return $('#exampleModal').modal('show')
     }
     sshKeyInput.value = data.key
+    startApp()
   })
 }
 
