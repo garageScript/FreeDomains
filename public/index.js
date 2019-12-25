@@ -53,6 +53,8 @@ class MappingItem {
       'align-items-center'
     )
     domainList.appendChild(mappingElement)
+
+    const createdDate = new Date(data.createdAt || Date.now())
     mappingElement.innerHTML = `
       <div style="width: 100%">
         <div style="display: flex">
@@ -62,7 +64,7 @@ class MappingItem {
             ${data.fullDomain}
           </a>
           <small class="form-text text-muted ml-1">
-            PORT: ${data.port}
+            ${createdDate.toDateString()}
           </small>
           <a
             class="${logClass}"

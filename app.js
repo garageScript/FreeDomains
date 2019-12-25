@@ -18,6 +18,10 @@ fs.readFile(dataPath, (err, fileData) => {
   }
 })
 
+const getMappings = () => {
+  return data.mappings || {}
+}
+
 const domains = {
   abc123: 'freedomains.dev',
   gen123: 'generals.gs',
@@ -26,6 +30,11 @@ const domains = {
   n00033: 'n00b.city',
   never8: 'neverhustle.club',
   us1923: 'usemy.app'
+}
+
+const getFullDomain = (subDomain, domain) => {
+  const prefix = subDomain ? `${subDomain}.` : ''
+  return `${prefix}${domain}`
 }
 
 app.get('/api/domains', (req, res) => {
@@ -40,21 +49,51 @@ app.use('/api/mappings', (req, res, next) => {
   if (!userId || !(data.users || {})[userId]) {
     return res.status(401).json({ message: 'user id is invalid' })
   }
+  req.user = {
+    id: userId
+  }
   next()
 })
 
 app.get('/api/mappings', async (req, res) => {
-  const mappings = await fetch('http://165.227.55.105:2229/api/mappings', {
+  const originalMappings = await fetch('http://165.227.55.105:2229/api/mappings', {
     headers: {
       authorization: '6ecbeea1-6dcd-4d77-870b-fcc04b86d79a'
     }
   }).then(r => r.json())
+  const originalMap = originalMappings.reduce((acc, mapping) => {
+    acc[mapping.fullDomain] = mapping
+    return acc
+  }, {})
 
-  res.json(mappings)
+  const allMappings = getMappings()
+  const userMappings = Object.values(allMappings).filter(m => {
+    return m.userId === req.user.id
+  }).map((mapping) => {
+    const original = originalMap[mapping.fullDomain] || {}
+    mapping.status = original.status || mapping.status
+    mapping.id = original.id || mapping.id
+    return mapping
+  })
+  res.json(userMappings)
 })
 
 app.post('/api/mappings', async (req, res) => {
-  console.log(req.body)
+  const { subDomain, domain } = req.body
+  const fullDomain = getFullDomain(subDomain, domain)
+  const mappings = getMappings()
+  mappings[fullDomain] = {
+    id: uuidv4(),
+    domain,
+    subDomain,
+    fullDomain,
+    gitLink: `myproxy@freedomains.dev:/home/myproxy/${fullDomain}`,
+    userId: req.user.id,
+    createdAt: Date.now()
+  }
+  data.mappings = mappings
+  saveData()
+  console.log(mappings)
   res.json(req.body)
 })
 
