@@ -80,20 +80,34 @@ app.get('/api/mappings', async (req, res) => {
 
 app.post('/api/mappings', async (req, res) => {
   const { subDomain, domain } = req.body
-  const fullDomain = getFullDomain(subDomain, domain)
+
+  const newMapping = await fetch('http://165.227.55.105:2229/api/mappings', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: '6ecbeea1-6dcd-4d77-870b-fcc04b86d79a'
+    },
+    body: JSON.stringify({
+      domain, subDomain
+    })
+  }).then(r => r.json()).catch(e => {
+    console.log('error for creating mapping', e)
+  })
+
+  const { gitLink, id, fullDomain } = newMapping
   const mappings = getMappings()
   mappings[fullDomain] = {
-    id: uuidv4(),
+    id,
     domain,
     subDomain,
     fullDomain,
-    gitLink: `myproxy@freedomains.dev:/home/myproxy/${fullDomain}`,
+    gitLink,
     userId: req.user.id,
     createdAt: Date.now()
   }
   data.mappings = mappings
   saveData()
-  console.log(mappings)
+
   res.json(req.body)
 })
 
