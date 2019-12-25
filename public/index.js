@@ -1,7 +1,8 @@
-/* global fetch localStorage $, confirm */
+/* global fetch localStorage $, confirm, alert */
 
 const hostSelector = document.querySelector('#hostSelector')
 const dropDownDomains = document.querySelector('.dropdown-menu')
+const createButton = document.querySelector('.create')
 const domainList = document.querySelector('.domainList')
 const sshKeySaveButton = document.querySelector('#saveSshKey')
 const sshKeyInput = document.querySelector('#sshKeyInput')
@@ -142,12 +143,23 @@ const getDomainNames = () => {
   return fetch('/api/domains').then(r => r.json())
 }
 
-const getMappings = () => {
-  return fetch('/api/mappings', {
-    headers: {
-      authorization: userId
+const apiFetch = (url, options = {}) => {
+  options.headers = options.headers || {}
+  options.headers.authorization = userId
+  return fetch(url, options).then(res => {
+    if (res.status >= 400) {
+      return res.json().then(response => {
+        alert(response.message)
+        localStorage.removeItem('freedomains')
+        window.location.reload()
+      })
     }
-  }).then(r => r.json())
+    return res.json()
+  })
+}
+
+const getMappings = () => {
+  return apiFetch('/api/mappings')
 }
 
 const startApp = () => {
@@ -162,6 +174,23 @@ const startApp = () => {
     list.forEach((dd) => {
       return new MappingItem(dd)
     })
+  })
+
+  createButton.addEventListener('click', () => {
+    const subDomain = document.querySelector('.subDomain')
+    apiFetch('/api/mappings', {
+      method: 'POST',
+      body: JSON.stringify({
+        domain: selectedHost,
+        subDomain: subDomain.value
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(res => {
+      window.location.reload()
+    })
+    subDomain.value = ''
   })
 }
 
@@ -178,6 +207,7 @@ if (!userId) {
   })
 }
 
+// SSH KEY Logic
 let saving = false
 sshKeySaveButton.addEventListener('click', () => {
   if (saving) {
@@ -198,6 +228,7 @@ sshKeySaveButton.addEventListener('click', () => {
     localStorage.setItem('freedomains', userId)
     saving = false
     $('#exampleModal').modal('hide')
+    window.location.reload()
   }).catch(() => {
     saving = false
     $('#exampleModal').modal('hide')

@@ -35,12 +35,15 @@ app.get('/api/domains', (req, res) => {
   res.json(domainList)
 })
 
-app.get('/api/mappings', async (req, res) => {
+app.use('/api/mappings', (req, res, next) => {
   const userId = req.headers.authorization
   if (!userId || !(data.users || {})[userId]) {
-    return res.json([])
+    return res.status(401).json({ message: 'user id is invalid' })
   }
+  next()
+})
 
+app.get('/api/mappings', async (req, res) => {
   const mappings = await fetch('http://165.227.55.105:2229/api/mappings', {
     headers: {
       authorization: '6ecbeea1-6dcd-4d77-870b-fcc04b86d79a'
@@ -48,6 +51,11 @@ app.get('/api/mappings', async (req, res) => {
   }).then(r => r.json())
 
   res.json(mappings)
+})
+
+app.post('/api/mappings', async (req, res) => {
+  console.log(req.body)
+  res.json(req.body)
 })
 
 app.get('/api/users/:userId', (req, res) => {
