@@ -1,0 +1,36 @@
+.deleteButton {
+  float: right;
+  display: inline-block;
+  cursor: pointer;
+}
+.actionContainer .loading {
+  display: none;
+}
+.actionContainer.isLoading .loading {
+  display: inline-block;
+}
+.actionContainer.isLoading .setUpButton {
+  display: none;
+}
+.save {
+  margin-bottom: 10px;
+}
+
+.inlineCode {
+  display: inline-block;
+  padding: 5px;
+  background: #eee;
+  color: #f55;
+}
+
+.indent {
+  padding-left: 20px;
+}
+.indent2 {
+  padding-left: 40px;
+}
+
+.groupStep {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
