@@ -45,7 +45,12 @@ if (!userId) {
   })
 }
 
+let saving = false
 sshKeySaveButton.addEventListener('click', () => {
+  if (saving) {
+    return
+  }
+  saving = true
   fetch('/api/sshKeys', {
     method: 'POST',
     headers: {
@@ -58,5 +63,10 @@ sshKeySaveButton.addEventListener('click', () => {
   }).then(r => r.json()).then((jResponse) => {
     userId = jResponse.userId
     localStorage.setItem('freedomains', userId)
+    saving = false
+    $('#exampleModal').modal('hide')
+  }).catch(() => {
+    saving = false
+    $('#exampleModal').modal('hide')
   })
 })
