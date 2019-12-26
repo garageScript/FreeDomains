@@ -122,7 +122,7 @@ app.get('/api/mappings', async (req, res) => {
     mapping.status = original.status || mapping.status
     mapping.id = original.id || mapping.id
     return mapping
-  })
+  }).sort((a, b) => b.createdAt - a.createdAt)
   res.json(userMappings)
 })
 
@@ -167,6 +167,15 @@ app.post('/api/mappings', async (req, res) => {
   }).then(r => r.json()).catch(e => {
     console.log('error for creating mapping', e)
   })
+
+  // DEV env:
+  /*
+  const newMapping = {
+    fullDomain: getFullDomain(subDomain, domain),
+    gitLink: 'demo.com',
+    id: Date.now()
+  }
+  */
 
   const { gitLink, id, fullDomain } = newMapping
   const mappings = getMappings()

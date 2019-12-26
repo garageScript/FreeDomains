@@ -27,7 +27,7 @@ class DomainOption {
 }
 
 class MappingItem {
-  constructor (data) {
+  constructor (data, idx) {
     const mappingElement = document.createElement('li')
     let iconClass
     let iconColor
@@ -58,6 +58,23 @@ class MappingItem {
     domainList.appendChild(mappingElement)
 
     const createdDate = new Date(data.createdAt || Date.now())
+    let step2Content = ''
+    if (idx) {
+      step2Content = `
+          <small class="form-text text-muted" style="display: inline-block;">
+            ${data.gitLink}
+          </small>
+      `
+    } else {
+      step2Content = `
+          <span class="step2">Step 2 --&gt; </span>
+          <span class="inlineCode">git clone
+            <small class="form-text text-muted" style="display: inline-block;">
+              ${data.gitLink}
+            </small>
+          </span>
+      `
+    }
     mappingElement.innerHTML = `
       <div style="width: 100%">
         <div style="display: flex">
@@ -96,9 +113,7 @@ class MappingItem {
             </div>
           </div>
         </div>
-        <small class="form-text text-muted" style="display: inline-block;">
-          ${data.gitLink}
-        </small>
+        ${step2Content}
       </div>
       <a
         href="/downloadConfig/?fullDomain=${data.fullDomain}"
@@ -175,8 +190,8 @@ const startApp = () => {
     hostSelector.innerText = list[0].domain
   })
   getMappings().then(list => {
-    list.forEach((dd) => {
-      return new MappingItem(dd)
+    list.forEach((dd, idx) => {
+      return new MappingItem(dd, idx)
     })
   })
 
