@@ -98,7 +98,7 @@ class MappingItem {
         </small>
       </div>
       <a
-        href="/api/mappings/download/?fullDomain=${data.fullDomain}"
+        href="/downloadConfig/?fullDomain=${data.fullDomain}"
         target="_blank"
         class="btn btn-sm btn-outline-success mr-3"
       >

@@ -35,6 +35,18 @@ const getFullDomain = (subDomain, domain) => {
   const prefix = subDomain ? `${subDomain}.` : ''
   return `${prefix}${domain}`
 }
+const myProxyApi = 'http://165.227.55.105:2229/api'
+
+app.get('/downloadConfig', (req, res) => {
+  fetch(`${myProxyApi}/mappings/download/?fullDomain=${req.query.fullDomain}`, {
+    headers: {
+      authorization: '6ecbeea1-6dcd-4d77-870b-fcc04b86d79a'
+    }
+  }).then(r => {
+    r.body.pipe(res)
+    res.setHeader('content-disposition', `attachment; filename="deploy.config.js"`)
+  })
+})
 
 app.get('/api/domains', (req, res) => {
   const domainList = Object.entries(domains).map(([id, domain]) => {
