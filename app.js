@@ -12,7 +12,6 @@ fs.readFile(dataPath, (err, fileData) => {
   if (err) return
   try {
     data = JSON.parse(fileData)
-    console.log('data', data)
   } catch (e) {
     console.log('parse error', e)
   }
@@ -78,6 +77,32 @@ app.get('/api/mappings', async (req, res) => {
   res.json(userMappings)
 })
 
+app.delete('/api/mappings/:id', async (req, res) => {
+  const allMappings = getMappings()
+  const mapping = Object.values(allMappings).find(m => {
+    return m.id === req.params.id
+  })
+
+  if (!mapping || mapping.userId !== req.user.id) {
+    return res.status(401).json({ message: 'user id is invalid' })
+  }
+
+  await fetch(`http://165.227.55.105:2229/api/mappings/${req.params.id}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: '6ecbeea1-6dcd-4d77-870b-fcc04b86d79a'
+    }
+  }).then(r => r.json()).catch(e => {
+    console.log('error for deleting mapping', e)
+  })
+
+  delete allMappings[mapping.fullDomain]
+  saveData()
+
+  res.json(mapping)
+})
+
 app.post('/api/mappings', async (req, res) => {
   const { subDomain, domain } = req.body
 
@@ -128,7 +153,6 @@ const saveData = () => {
 }
 
 app.post('/api/sshKeys', async (req, res) => {
-  console.log('rebody', req.body)
   let { userId, key } = req.body
   if (!key) return res.json({ error: 'invalid input' })
 
@@ -154,7 +178,6 @@ app.post('/api/sshKeys', async (req, res) => {
   if (users[userId]) {
     // Delete oldSshKey
     const oldSshKey = users[userId]
-    console.log('oldSshKey', oldSshKey)
   }
 
   // Create new key

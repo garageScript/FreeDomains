@@ -115,13 +115,12 @@ class MappingItem {
     const delButton = mappingElement.querySelector('.deleteButton')
     delButton.onclick = () => {
       if (confirm('Are you sure want to delete this domain?')) {
-        fetch(`/api/mappings/${data.id}`, {
+        apiFetch(`/api/mappings/${data.id}`, {
           method: 'DELETE',
-          body: JSON.stringify({ data }),
           headers: {
             'Content-Type': 'application/json'
           }
-        }).then(() => {
+        }).then(res => {
           window.location.reload()
         })
       }
