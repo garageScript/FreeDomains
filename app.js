@@ -170,17 +170,28 @@ app.post('/api/sshKeys', async (req, res) => {
     })
   }
 
-  if (!userId) {
-    userId = uuidv4()
-  }
-
   // Replace UserId
   if (users[userId]) {
-    // Delete oldSshKey
-    const oldSshKey = users[userId]
+    // Delete oldSshKey?
+    //   Decided not to, a user could have multiple
+    //   sshKeys on one browser
   }
 
   // Create new key
+  await fetch('http://165.227.55.105:2229/api/sshKeys', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: '6ecbeea1-6dcd-4d77-870b-fcc04b86d79a'
+    },
+    body: JSON.stringify({
+      key
+    })
+  }).then(r => r.json()).catch(e => {
+    console.log('error for creating mapping', e)
+  })
+
+  userId = uuidv4()
   users[userId] = key
   data.users = users
   await saveData()
