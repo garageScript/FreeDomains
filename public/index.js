@@ -6,6 +6,8 @@ const createButton = document.querySelector('.create')
 const domainList = document.querySelector('.domainList')
 const sshKeySaveButton = document.querySelector('#saveSshKey')
 const sshKeyInput = document.querySelector('#sshKeyInput')
+const subDomain = document.querySelector('.subDomain')
+const invalidElement = document.querySelector('.invalid-feedback')
 
 let selectedHost = ''
 
@@ -17,6 +19,7 @@ class DomainOption {
     dropdownElement.onclick = () => {
       hostSelector.innerText = domain
       selectedHost = domain
+      checkAvailability()
     }
 
     dropDownDomains.appendChild(dropdownElement)
@@ -178,22 +181,43 @@ const startApp = () => {
   })
 
   createButton.addEventListener('click', () => {
-    const subDomain = document.querySelector('.subDomain')
-    apiFetch('/api/mappings', {
-      method: 'POST',
-      body: JSON.stringify({
-        domain: selectedHost,
-        subDomain: subDomain.value
-      }),
-      headers: {
-        'Content-Type': 'application/json'
+    checkAvailability().then((d) => {
+      if (!d.isAvailable) {
+        return
       }
-    }).then(res => {
-      window.location.reload()
+      apiFetch('/api/mappings', {
+        method: 'POST',
+        body: JSON.stringify({
+          domain: selectedHost,
+          subDomain: subDomain.value
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }).then(res => {
+        window.location.reload()
+      })
+      subDomain.value = ''
     })
-    subDomain.value = ''
   })
 }
+
+const checkAvailability = () => {
+  const sDomain = subDomain.value
+  return fetch(`/isAvailable?domain=${selectedHost}&subDomain=${sDomain}`).then(r => r.json()).then(d => {
+    if (d.isAvailable) {
+      invalidElement.innerText = ' '
+      subDomain.classList.remove('is-invalid')
+    } else {
+      const prefix = sDomain ? sDomain + '.' : ''
+      invalidElement.innerText = `${prefix}${selectedHost} is not available. Please pick another!`
+      subDomain.classList.add('is-invalid')
+    }
+    return d
+  })
+}
+subDomain.addEventListener('keyup', checkAvailability)
+subDomain.addEventListener('blur', checkAvailability)
 
 let userId = localStorage.getItem('freedomains')
 if (!userId) {

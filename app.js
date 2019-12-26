@@ -38,6 +38,19 @@ const getFullDomain = (subDomain, domain) => {
 
 const myProxyApi = 'http://165.227.55.105:2229/api'
 
+app.get('/isAvailable', (req, res) => {
+  const { subDomain, domain } = req.query
+  const fullDomain = getFullDomain(subDomain, domain)
+  const allMappings = getMappings()
+  const result = {
+    isAvailable: true
+  }
+  if (allMappings[fullDomain]) {
+    result.isAvailable = false
+  }
+  return res.json(result)
+})
+
 app.get('/downloadConfig', (req, res) => {
   fetch(`${myProxyApi}/mappings/download/?fullDomain=${req.query.fullDomain}`, {
     headers: {
