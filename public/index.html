@@ -86,7 +86,26 @@
       <div class="row">
         <div class="col-12">
           <h4>Step 3: Deploy!</h4>
-          <h5>Sample Server Code</h5>
+          <h5>3a: Go into the downloaded folder</h5>
+          <div class="indent">
+            git clone ... from step 2 would have downloaded a folder. Go into it: 
+            <br />
+            <span class="inlineCode">cd subdomain.domain.com</span>
+          </div>
+
+          <h5>3b: Create a simple javascript file</h5>
+          <div class="indent">
+            Initialize your project with the following command. A new file (package.json) will be created for you.
+            <br />
+            <span class="inlineCode">npm init -y</span>
+          </div>
+
+          <h5>3c: Create a simple javascript file</h5>
+          <div class="indent">
+            Create a file. For example,
+            <span class="inlineCode">app.js</span>
+            <br />
+            Put the following code into it. This just sends back "hello" with every request
           <pre style="background-color: #f3f3f3; padding: 0 30px"><code>
 const express = require('express')
 const app = express()
@@ -97,16 +116,52 @@ app.get('/', (req, res) => {
 
 app.listen(process.env.PORT || 8123);
           </code></pre>
+          </div>
+
+          <h5>3d: Install dependencies</h5>
+          <div class="indent">
+            The code above uses a library called express. You need to install it and save this dependency to package.json.
+            <br />
+            <span class="inlineCode">npm i --save express</span>
+          </div>
+
+          <h5>3e: Tell MyProxy Server how to run your app</h5>
+          <div class="indent">
+            Under the "scripts" section, tell us how to run your app. Don't forget the "," at the end!
+            <br />
+            <span class="inlineCode">"start:myproxy": "node app.js",</span>
+          </div>
+
+          <h5>3f: Save and push!</h5>
+          <div class="indent">
+            Add all files to git:
+            <span class="inlineCode">git add .</span>
+          </div>
+          <div class="indent">
+            Save your changes
+            <span class="inlineCode">git commit -m "add my first app"</span>
+          </div>
+          <div class="indent">
+            Push!
+            <span class="inlineCode">git push origin master</span>
+          </div>
+
+          <h5>4. Celerbrate</h5>
+          <div class="indent">
+            Tell all your friends about your new website!
+          </div>
+
+          <hr>
         </div>
       </div>
 
       <div class="row">
         <div class="col-12">
-          <h5>Overview</h5>
+          <h4>Video Overview</h4>
             <div class="groupStep">
-              <div>
-                The video below shows you how to deploy your apps after setting up your SSH Key
-              </div>
+              <p>
+                The video below shows you how to deploy your apps after setting up your SSH Key. The contents may contain more information than the steps above because they are taken from the MyProxy site, but it should be enough to help you understand each steps.
+              </p>
               <div>
                 <iframe width="100%" height="315" src="https://www.youtube.com/embed/Tjx0BtpZmPc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
               </div>
@@ -115,7 +170,6 @@ app.listen(process.env.PORT || 8123);
       </div>
 
     </div>
-
 
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg" role="document">
@@ -166,8 +220,6 @@ app.listen(process.env.PORT || 8123);
         </div>
       </div>
     </div>
-
-
 
     <script
       src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
