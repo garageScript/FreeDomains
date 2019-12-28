@@ -254,16 +254,12 @@ sshKeySaveButton.addEventListener('click', () => {
     return
   }
   saving = true
-  fetch('/api/sshKeys', {
+  apiFetch(`/api/sshKeys`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      userId,
-      key: sshKeyInput.value
-    })
-  }).then(r => r.json()).then((jResponse) => {
+    }
+  }).then(jResponse => {
     userId = jResponse.userId
     localStorage.setItem('freedomains', userId)
     saving = false
