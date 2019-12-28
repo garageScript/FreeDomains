@@ -24,7 +24,7 @@ const getMappings = () => {
 
 const domains = {
   abc123: 'freedomains.dev',
-  gen123: 'generals.gs',
+  gen123: 'general.gs',
   hir192: 'hireme.fun',
   lrn999: 'learnjs.tips',
   n00033: 'n00b.city',
