@@ -258,7 +258,11 @@ sshKeySaveButton.addEventListener('click', () => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
-    }
+    },
+    body: JSON.stringify({
+      userId,
+      key: sshKeyInput.value
+    })
   }).then(jResponse => {
     userId = jResponse.userId
     localStorage.setItem('freedomains', userId)
