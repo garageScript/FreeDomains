@@ -1,6 +1,7 @@
 const express = require('express')
 const fs = require('fs')
 const fetch = require('node-fetch')
+const { exec } = require('child_process')
 const uuidv4 = require('uuid/v4')
 const app = express()
 app.use(express.static('public'))
@@ -228,32 +229,45 @@ app.post('/api/sshKeys', async (req, res) => {
     })
   }
 
-  // Replace UserId
-  if (users[userId]) {
-    // Delete oldSshKey?
-    //   Decided not to, a user could have multiple
-    //   sshKeys on one browser
-  }
+  const tmpFilePath = `${__dirname}/keys_${uuidv4()}`
+  fs.writeFile(tmpFilePath, key, () => {
+    exec(`ssh-keygen -lf ${tmpFilePath}`, (err, result) => {
+      exec(`rm ${tmpFilePath}`, async () => {
+        if (err) {
+          return res.status(400).send({
+            message: 'SSH KEY is invalid. Run "cat ~/.ssh/id_rsa.pub" and submit the output of the command'
+          })
+        }
 
-  // Create new key
-  await fetch('http://165.227.55.105:2229/api/sshKeys', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      authorization: '6ecbeea1-6dcd-4d77-870b-fcc04b86d79a'
-    },
-    body: JSON.stringify({
-      key
+        // Replace UserId
+        if (users[userId]) {
+          // Delete oldSshKey?
+          //   Decided not to, a user could have multiple
+          //   sshKeys on one browser
+        }
+
+        // Create new key
+        await fetch('http://165.227.55.105:2229/api/sshKeys', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            authorization: '6ecbeea1-6dcd-4d77-870b-fcc04b86d79a'
+          },
+          body: JSON.stringify({
+            key
+          })
+        }).then(r => r.json()).catch(e => {
+          console.log('error for creating mapping', e)
+        })
+
+        userId = uuidv4()
+        users[userId] = key
+        data.users = users
+        await saveData()
+        return res.json({ userId, key })
+      })
     })
-  }).then(r => r.json()).catch(e => {
-    console.log('error for creating mapping', e)
   })
-
-  userId = uuidv4()
-  users[userId] = key
-  data.users = users
-  await saveData()
-  return res.json({ userId, key })
 })
 
 app.listen(process.env.PORT || 8123)
