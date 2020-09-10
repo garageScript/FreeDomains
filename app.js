@@ -62,7 +62,7 @@ app.get('/api/logs/:type/:domain', (req, res) => {
       authorization: myProxyKey
     }
   }).then(r => {
-    res.type('json')
+    res.setHeader('content-type', 'text/plain')
     r.body.pipe(res)
   })
 })
