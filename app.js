@@ -7,6 +7,9 @@ const app = express()
 app.use(express.static('public'))
 app.use(express.json())
 
+const myProxyApi = process.env.MYPROXY_API
+const myProxyKey = process.env.MYPROXY_KEY
+
 const dataPath = './data.db'
 let data = {}
 fs.readFile(dataPath, (err, fileData) => {
@@ -37,7 +40,6 @@ const getFullDomain = (subDomain, domain) => {
   return `${prefix}${domain}`
 }
 
-const myProxyApi = 'http://165.227.55.105:2229/api'
 
 app.get('/isAvailable', (req, res) => {
   const { subDomain, domain } = req.query
@@ -55,7 +57,7 @@ app.get('/isAvailable', (req, res) => {
 app.get('/downloadConfig', (req, res) => {
   fetch(`${myProxyApi}/mappings/download/?fullDomain=${req.query.fullDomain}`, {
     headers: {
-      authorization: '6ecbeea1-6dcd-4d77-870b-fcc04b86d79a'
+      authorization: myProxyKey
     }
   }).then(r => {
     r.body.pipe(res)
@@ -67,7 +69,7 @@ app.get('/api/logs/:type/:domain', (req, res) => {
   const { type, domain } = req.params
   fetch(`${myProxyApi}/logs/${type}/${domain}`, {
     headers: {
-      authorization: '6ecbeea1-6dcd-4d77-870b-fcc04b86d79a'
+      authorization: myProxyKey
     }
   }).then(r => {
     r.body.pipe(res)
@@ -79,7 +81,7 @@ app.delete('/api/logs/:domain', (req, res) => {
   fetch(`${myProxyApi}/logs/${domain}`, {
     method: 'DELETE',
     headers: {
-      authorization: '6ecbeea1-6dcd-4d77-870b-fcc04b86d79a'
+      authorization: myProxyKey
     }
   }).then(r => {
     r.body.pipe(res)
@@ -105,9 +107,9 @@ app.use('/api/mappings', (req, res, next) => {
 })
 
 app.get('/api/mappings', async (req, res) => {
-  const originalMappings = await fetch('http://165.227.55.105:2229/api/mappings', {
+  const originalMappings = await fetch(`${myProxyApi}/mappings`, {
     headers: {
-      authorization: '6ecbeea1-6dcd-4d77-870b-fcc04b86d79a'
+      authorization: myProxyKey
     }
   }).then(r => r.json())
   const originalMap = originalMappings.reduce((acc, mapping) => {
@@ -137,11 +139,11 @@ app.delete('/api/mappings/:id', async (req, res) => {
     return res.status(401).json({ message: 'user id is invalid' })
   }
 
-  await fetch(`http://165.227.55.105:2229/api/mappings/${req.params.id}`, {
+  await fetch(`${myProxyApi}/mappings/${req.params.id}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
-      authorization: '6ecbeea1-6dcd-4d77-870b-fcc04b86d79a'
+      authorization: myProxyKey
     }
   }).then(r => r.json()).catch(e => {
     console.log('error for deleting mapping', e)
@@ -156,11 +158,11 @@ app.delete('/api/mappings/:id', async (req, res) => {
 app.post('/api/mappings', async (req, res) => {
   const { subDomain, domain } = req.body
 
-  const newMapping = await fetch('http://165.227.55.105:2229/api/mappings', {
+  const newMapping = await fetch(`${myProxyApi}/mappings`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      authorization: '6ecbeea1-6dcd-4d77-870b-fcc04b86d79a'
+      authorization: myProxyKey
     },
     body: JSON.stringify({
       domain, subDomain
@@ -247,11 +249,11 @@ app.post('/api/sshKeys', async (req, res) => {
         }
 
         // Create new key
-        await fetch('http://165.227.55.105:2229/api/sshKeys', {
+        await fetch(`${myProxyApi}/sshKeys`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            authorization: '6ecbeea1-6dcd-4d77-870b-fcc04b86d79a'
+            authorization: myProxyKey
           },
           body: JSON.stringify({
             key
