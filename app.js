@@ -25,16 +25,6 @@ const getMappings = () => {
   return data.mappings || {}
 }
 
-const domains = {
-  abc123: 'freedomains.dev',
-  gen123: 'general.gs',
-  hir192: 'hireme.fun',
-  lrn999: 'learnjs.tips',
-  n00033: 'n00b.city',
-  never8: 'neverhustle.club',
-  us1923: 'usemy.app'
-}
-
 const getFullDomain = (subDomain, domain) => {
   const prefix = subDomain ? `${subDomain}.` : ''
   return `${prefix}${domain}`
@@ -89,10 +79,13 @@ app.delete('/api/logs/:domain', (req, res) => {
 })
 
 app.get('/api/domains', (req, res) => {
-  const domainList = Object.entries(domains).map(([id, domain]) => {
-    return { id, domain }
+  fetch (`${myProxyApi}/availableDomains`, {
+    headers: {
+      authorization
+    }
   })
-  res.json(domainList)
+    .then(r => r.json())
+    .then(domains => res.json(domains))
 })
 
 app.use('/api/mappings', (req, res, next) => {
