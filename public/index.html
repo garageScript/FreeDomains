@@ -136,9 +136,12 @@ app.listen(process.env.PORT || 8123);
 
           <h5>3e: Tell MyProxy Server how to run your app</h5>
           <div class="indent">
-            Under the "scripts" section of package.json file, tell us how to run your app. Don't forget the "," at the end!
-            <br />
-            <img src="/step3.png" alt="">
+            Under the "main" section of package.json file, put the filename of your app main entry point.
+            <pre style="background-color: #f3f3f3; padding: 0 30px"><code>
+...
+"main": "app.js",
+....
+          </code></pre>
           </div>
 
           <h5>3f: Save and push!</h5>
