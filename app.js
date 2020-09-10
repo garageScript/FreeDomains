@@ -82,7 +82,7 @@ app.delete('/api/logs/:domain', (req, res) => {
 app.get('/api/domains', (req, res) => {
   fetch (`${myProxyApi}/availableDomains`, {
     headers: {
-      authorization
+      authorization: myProxyKey
     }
   })
     .then(r => r.json())
