@@ -36,7 +36,7 @@ class MappingItem {
     // they are not managed by pm2.
     let settingClass
     let logClass
-    if (data.status === 'online') {
+    if (data.status === 'running') {
       iconClass = 'fa fa-circle mr-1 mt-1'
       iconColor = 'rgba(50,255,50,0.5)'
       logClass = 'fa fa-file-text-o ml-1 mt-1'
@@ -89,39 +89,18 @@ class MappingItem {
           <a
             class="${logClass}"
             style="font-size: 15px; color: rgba(255,50,50,0.5)"
-            href="/api/logs/err/${data.fullDomain}"
+            href="/api/logs/stderr/${data.fullDomain}"
           >
           </a>
           <a
             class="${logClass}"
             style="font-size: 15px; color: rgba(40,167,70,0.5)"
-            href="/api/logs/out/${data.fullDomain}"
+            href="/api/logs/stdout/${data.fullDomain}"
           >
           </a>
-          <div class="dropright">
-            <a href="#" role="button" data-toggle="dropdown" class="btn-link">
-              <span class="${settingClass}" style="font-size: 15px"> </span>
-            </a>
-            <div class="dropdown-menu">
-              <button
-                type="button"
-                class="btn btn-link deleteLogButton"
-                style="color: rgba(255,50,50,1)"
-              >
-                Clear Logs
-              </button>
-            </div>
-          </div>
         </div>
         ${step2Content}
       </div>
-      <a
-        href="/downloadConfig/?fullDomain=${data.fullDomain}"
-        target="_blank"
-        class="btn btn-sm btn-outline-success mr-3"
-      >
-        Download<i class="fa fa-download"></i>
-      </a>
       <button
         class="btn btn-sm btn-outline-danger mr-3 deleteButton"
         type="button"
@@ -139,18 +118,6 @@ class MappingItem {
             'Content-Type': 'application/json'
           }
         }).then(res => {
-          window.location.reload()
-        })
-      }
-    }
-    const clearLogButton = mappingElement.querySelector('.deleteLogButton')
-    clearLogButton.onclick = () => {
-      if (
-        confirm(`Are you sure you want to clear ${data.fullDomain}'s logs?`)
-      ) {
-        fetch(`/api/logs/${data.fullDomain}`, {
-          method: 'DELETE'
-        }).then(() => {
           window.location.reload()
         })
       }
