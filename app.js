@@ -151,6 +151,7 @@ app.delete('/api/mappings/:id', async (req, res) => {
 
 app.post('/api/mappings', async (req, res) => {
   const { subDomain, domain } = req.body
+  if (!subDomain) return res.status(400).json({ message: 'Subdomain field is required.' })
 
   const newMapping = await fetch(`${myProxyApi}/mappings`, {
     method: 'POST',
