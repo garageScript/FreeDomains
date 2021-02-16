@@ -8,6 +8,7 @@ const sshKeySaveButton = document.querySelector('#saveSshKey')
 const sshKeyInput = document.querySelector('#sshKeyInput')
 const subDomain = document.querySelector('.subDomain')
 const invalidElement = document.querySelector('.invalid-feedback')
+const domainForm = document.getElementById('domainForm')
 
 let selectedHost = ''
 
@@ -162,7 +163,9 @@ const startApp = () => {
     })
   })
 
-  createButton.addEventListener('click', () => {
+  domainForm.addEventListener('submit', (e) => {
+    e.preventDefault()
+    if (!subDomain.value) return alert('Subdomain field is required.')
     checkAvailability().then((d) => {
       if (!d.isAvailable) {
         return
