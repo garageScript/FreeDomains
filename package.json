@@ -14,7 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.19.2",
+    "express": "^4.21.1",
     "node-fetch": "^3.2.10",
     "uuid": "^3.3.3"
   }
